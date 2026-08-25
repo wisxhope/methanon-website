@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สินค้าทั้งหมด-METHANON</title>
+    <link rel="icon" type="image/png" href="assets/images/MTN.png">
+
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        .custom-product-img {
+            height: 220px;
+            object-fit: contain;
+        }
+        .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+        
+        /* สไตล์ Accordion หมวดหมู่สินค้าฝั่งซ้าย */
+        .category-accordion .accordion-button {
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            background-color: #ffffff;
+            color: #333;
+        }
+        .category-accordion .accordion-button:not(.collapsed) {
+            background-color: #e7f1ff;
+            color: #0d6efd;
+            box-shadow: none;
+        }
+        .subcategory-list .list-group-item {
+            cursor: pointer;
+            border: none;
+            padding: 0.5rem 1rem 0.5rem 1.5rem;
+            font-size: 0.9rem;
+            color: #555;
+            transition: all 0.2s ease;
+        }
+        .subcategory-list .list-group-item:hover {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+        }
+        .subcategory-list .list-group-item.active {
+            background-color: #0d6efd;
+            color: #fff;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .all-category-btn {
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="navbar-placeholder"></div>
+
+    <main class="container my-5">
+        
+        <!-- Header Section -->
+        <div class="text-center mb-5">
+            <h1 class="fw-bold text-primary display-6">สินค้าทั้งหมดของเรา</h1>
+            <p class="text-muted fs-6">เลือกชมเครื่องถ่ายเอกสาร อุปกรณ์ และอะไหล่คุณภาพสูง</p>
+            <hr class="w-25 mx-auto border-primary border-2">
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">กำลังโหลดรายการสินค้า...</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row g-4" id="main-content" style="display: none;">
+            
+            <!-- ฝั่งซ้าย: Sidebar แสดงหมวดหมู่และหมวดหมู่ย่อย -->
+            <div class="col-12 col-lg-3">
+                <div class="card shadow-sm border-0 sticky-top" style="top: 20px; z-index: 10;">
+                    <div class="card-header bg-primary text-white font-weight-bold py-3">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-grid-fill me-2"></i>หมวดหมู่สินค้า</h5>
+                    </div>
+                    <div class="card-body p-2">
+                        
+                        <!-- ปุ่มเลือกสินค้าทั้งหมด -->
+                        <div class="list-group list-group-flush mb-2">
+                            <div class="list-group-item d-flex justify-content-between align-items-center all-category-btn rounded active" 
+                                 id="btn-all-products"
+                                 onclick="filterProducts('ทั้งหมด', 'ทั้งหมด')">
+                                <span><i class="bi bi-collection-fill me-2"></i>สินค้าทั้งหมด</span>
+                                <span class="badge bg-light text-dark rounded-pill" id="total-count">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Accordion สำหรับหมวดหมู่หลักและหมวดหมู่ย่อย -->
+                        <div class="accordion category-accordion accordion-flush" id="categoryAccordion"></div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ฝั่งขวา: รายการสินค้า -->
+            <div class="col-12 col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0" id="current-category-title">สินค้าทั้งหมด</h5>
+                    <span class="text-muted small" id="product-count">แสดง 0 รายการ</span>
+                </div>
+
+                <div class="row g-4" id="product-container"></div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal สำหรับแสดงรายละเอียดสินค้า -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 bg-light">
+                    <div>
+                        <span class="badge bg-primary px-3 py-2 me-1" id="modalCategory">หมวดหมู่หลัก</span>
+                        <span class="badge bg-secondary px-3 py-2" id="modalSubcategory">หมวดหมู่ย่อย</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-5 text-center mb-3 mb-md-0">
+                            <img id="modalImage" src="" class="img-fluid rounded" style="max-height: 260px; object-fit: contain;" alt="รูปสินค้า">
+                        </div>
+                        <div class="col-md-7">
+                            <h3 class="fw-bold text-primary mb-2" id="modalTitle">ชื่อสินค้า</h3>
+                            <h4 class="text-danger fw-bold mb-3" id="modalPrice">0.00 บาท</h4>
+                            <hr>
+                            <h6 class="fw-bold text-dark">รายละเอียดสินค้า:</h6>
+                            <p class="text-muted" id="modalDescription" style="white-space: pre-line;">ไม่มีรายละเอียดเพิ่มเติม</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">ปิด</button>
+                    <a href="contact.html" class="btn btn-primary px-4">ติดต่อสั่งซื้อ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <script>
+        // SVG รูปภาพสำรองภายในเครื่อง (ไม่ต้องพึ่งเว็บภายนอก ป้องกัน ERR_CONNECTION_CLOSED)
+        const NO_IMAGE_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='220' viewBox='0 0 300 220'><rect width='100%' height='100%' fill='%23f8f9fa'/><text x='50%' y='50%' font-family='sans-serif' font-size='16' fill='%236c757d' text-anchor='middle' dominant-baseline='middle'>ไม่มีรูปภาพ</text></svg>";
+
+        fetch('navbar.html')
+            .then(res => {
+                if (!res.ok) throw new Error('Navbar not found');
+                return res.text();
+            })
+            .then(data => document.getElementById('navbar-placeholder').innerHTML = data)
+            .catch(err => console.warn('Navbar load skipped or failed:', err));
+    </script>
+
+    <script>
+        let allProducts = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch('api/get_products.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP Error Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(products => {
+                    allProducts = Array.isArray(products) ? products : [];
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'flex';
+
+                    document.getElementById('total-count').innerText = allProducts.length;
+
+                    renderCategoryAccordion();
+                    filterProducts('ทั้งหมด', 'ทั้งหมด');
+                })
+                .catch(error => {
+                    console.error('API Error:', error);
+                    document.getElementById('loading').innerHTML = `
+                        <div class="alert alert-danger mx-auto" style="max-width: 500px;">
+                            <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>เกิดข้อผิดพลาดในการดึงข้อมูล</h6>
+                            <p class="small mb-0">ไม่สามารถเชื่อมต่อกับ <code>api/get_products.php</code> ได้ (${error.message})</p>
+                        </div>
+                    `;
+                });
+        });
+
+        function renderCategoryAccordion() {
+            const accordionContainer = document.getElementById('categoryAccordion');
+            accordionContainer.innerHTML = '';
+
+            const catStructure = {};
+
+            allProducts.forEach(p => {
+                const mainCat = p.category || 'อื่นๆ';
+                const subCat = p.subcategory || 'ทั่วไป';
+
+                if (!catStructure[mainCat]) {
+                    catStructure[mainCat] = new Set();
+                }
+                catStructure[mainCat].add(subCat);
+            });
+
+            let index = 0;
+            for (const [mainCategory, subCategories] of Object.entries(catStructure)) {
+                index++;
+                const collapseId = `collapseCategory${index}`;
+                const mainCatCount = allProducts.filter(p => (p.category || 'อื่นๆ') === mainCategory).length;
+
+                let subCategoryItems = `
+                    <div class="list-group-item d-flex justify-content-between align-items-center subcat-item" 
+                         data-main="${mainCategory}" data-sub="ทั้งหมด"
+                         onclick="filterProducts('${mainCategory}', 'ทั้งหมด')">
+                        <span><i class="bi bi-chevron-right me-1 small"></i>แสดงทั้งหมด</span>
+                        <span class="badge bg-light text-dark rounded-pill">${mainCatCount}</span>
+                    </div>
+                `;
+
+                subCategories.forEach(subCategory => {
+                    const subCount = allProducts.filter(p => (p.category || 'อื่นๆ') === mainCategory && (p.subcategory || 'ทั่วไป') === subCategory).length;
+                    subCategoryItems += `
+                        <div class="list-group-item d-flex justify-content-between align-items-center subcat-item" 
+                             data-main="${mainCategory}" data-sub="${subCategory}"
+                             onclick="filterProducts('${mainCategory}', '${subCategory}')">
+                            <span><i class="bi bi-dot me-1"></i>${subCategory}</span>
+                            <span class="badge bg-light text-dark rounded-pill">${subCount}</span>
+                        </div>
+                    `;
+                });
+
+                const accordionHTML = `
+                    <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed rounded my-1" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+                                ${mainCategory}
+                            </button>
+                        </h2>
+                        <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#categoryAccordion">
+                            <div class="accordion-body p-0 ps-2 subcategory-list">
+                                <div class="list-group list-group-flush">
+                                    ${subCategoryItems}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                accordionContainer.innerHTML += accordionHTML;
+            }
+        }
+
+        function filterProducts(mainCategory, subCategory) {
+            document.querySelectorAll('.subcat-item').forEach(el => el.classList.remove('active'));
+            const btnAll = document.getElementById('btn-all-products');
+            
+            if (mainCategory === 'ทั้งหมด') {
+                btnAll.classList.add('active');
+                document.getElementById('current-category-title').innerText = 'สินค้าทั้งหมด';
+            } else {
+                btnAll.classList.remove('active');
+                if (subCategory === 'ทั้งหมด') {
+                    document.getElementById('current-category-title').innerText = `${mainCategory} (ทั้งหมด)`;
+                } else {
+                    document.getElementById('current-category-title').innerText = `${mainCategory} > ${subCategory}`;
+                }
+
+                const activeEl = document.querySelector(`.subcat-item[data-main="${mainCategory}"][data-sub="${subCategory}"]`);
+                if (activeEl) activeEl.classList.add('active');
+            }
+
+            let filtered = allProducts;
+            if (mainCategory !== 'ทั้งหมด') {
+                filtered = filtered.filter(p => (p.category || 'อื่นๆ') === mainCategory);
+                if (subCategory !== 'ทั้งหมด') {
+                    filtered = filtered.filter(p => (p.subcategory || 'ทั่วไป') === subCategory);
+                }
+            }
+
+            document.getElementById('product-count').innerText = `แสดง ${filtered.length} รายการ`;
+
+            const container = document.getElementById('product-container');
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center text-muted py-5"><p>ยังไม่มีรายการสินค้าในหมวดหมู่นี้</p></div>';
+                return;
+            }
+
+            filtered.forEach(product => {
+                const formattedPrice = `${Number(product.price || 0).toLocaleString('th-TH')} บาท`;  /* เปลี่ยนหน่วยราคา*/
+
+                let imageSrc = product.image || '';
+                if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('assets/') && !imageSrc.startsWith('data:')) {
+                    imageSrc = `assets/images/products/${imageSrc}`;
+                }
+                if (!imageSrc) imageSrc = NO_IMAGE_SVG;
+
+                const cardHTML = `
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="text-center p-3">
+                                <img src="${imageSrc}" 
+                                     onerror="this.onerror=null; this.src=NO_IMAGE_SVG;" 
+                                     class="card-img-top img-fluid custom-product-img" 
+                                     alt="${product.title}">
+                            </div>
+                            <div class="card-body d-flex flex-column text-center p-4">
+                                <div class="mb-2">
+                                    <span class="badge bg-primary me-1">${product.category || 'อื่นๆ'}</span>
+                                    ${product.subcategory ? `<span class="badge bg-secondary">${product.subcategory}</span>` : ''}
+                                </div>
+                                <h5 class="card-title fw-bold text-dark mb-2">${product.title}</h5>
+                                <p class="card-text text-muted small mb-3 flex-grow-1 text-truncate">${product.description || ''}</p>
+                                <h4 class="text-danger fw-bold mb-3">${formattedPrice}</h4>
+                                
+                                <div class="d-flex gap-2 mt-auto">
+                                    <button class="btn btn-outline-primary w-50" onclick="showProductDetail(${product.id})">ดูรายละเอียด</button>
+                                    <a href="contact.html" class="btn btn-primary w-50">สั่งซื้อ</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function showProductDetail(productId) {
+            const product = allProducts.find(p => p.id == productId);
+            if (!product) return;
+
+            let imageSrc = product.image || '';
+            if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('assets/') && !imageSrc.startsWith('data:')) {
+                imageSrc = `assets/images/products/${imageSrc}`;
+            }
+
+            const formattedPrice = new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(product.price || 0);
+
+            document.getElementById('modalTitle').innerText = product.title;
+            document.getElementById('modalCategory').innerText = product.category || 'หมวดหมู่หลัก';
+            document.getElementById('modalSubcategory').innerText = product.subcategory || 'หมวดหมู่ย่อย';
+            document.getElementById('modalPrice').innerText = formattedPrice;
+            document.getElementById('modalDescription').innerText = product.description || 'ไม่มีรายละเอียดเพิ่มเติม';
+            
+            const modalImg = document.getElementById('modalImage');
+            modalImg.src = imageSrc || NO_IMAGE_SVG;
+            modalImg.onerror = function() {
+                this.onerror = null;
+                this.src = NO_IMAGE_SVG;
+            };
+
+            const modal = new bootstrap.Modal(document.getElementById('productModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>

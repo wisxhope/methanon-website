@@ -1,0 +1,299 @@
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* ==========================================
+   1. ค่าเริ่มต้นและโครงสร้างพื้นฐาน 
+   📌 [ใช้งาน: ทุกหน้าของเว็บไซต์]
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Noto Sans", sans-serif;
+}
+
+/* จัดการพื้นหลังและโครงสร้าง Layout หลัก */
+body {
+    background-color: #ffffff;
+    color: black;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ตรึงแถบ Navbar ไว้ด้านบนสุด */
+#navbar-placeholder {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+
+/* ==========================================
+   2. ส่วนต้อนรับและปุ่มกด (Hero Section)
+   📌 [ใช้งาน: หน้าแรก index.html / หน้าที่ใช้กล่องข้อความต้อนรับ]
+   ========================================== */
+.hero-container {
+    text-align: center;
+    background-color: azure;
+    padding: 40px 50px;
+    border-radius: 25px;
+    max-width: 500px;
+    margin: 40px auto;
+}
+
+.title {
+    font-size: 50px;
+    color: #1330B0;
+    margin-bottom: 25px;
+}
+
+.subtitle {
+    font-size: 25px;
+    color: black;
+    margin-bottom: 25px;
+}
+
+/* ปุ่มหลัก สีน้ำเงิน 📌 [ใช้งาน: หน้าแรก index.html, หน้า products.html และหน้าอื่นๆ] */
+.btn-primary {
+    background-color: #1330B0;
+    color: white;
+    font-size: 20px;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+    background-color: dodgerblue;
+    transform: translateY(-2px);
+}
+
+
+/* ==========================================
+   3. แบนเนอร์และโลโก้หลัก (Banner & Logo Header)
+   📌 [ใช้งาน: หน้าแรก index.html / หน้าที่มีแบนเนอร์หลักด้านบน]
+   ========================================== */
+.banner-img {
+    height: 400px;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .banner-img {
+        height: 220px;
+    }
+}
+
+.logo-header {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.site-logo {
+    max-height: 80px;
+    width: auto;
+    object-fit: contain;
+}
+
+@media (max-width: 768px) {
+    .site-logo {
+        max-height: 50px;
+    }
+}
+
+
+/* ==========================================
+   4. แถบประกาศวิ่งบนแบนเนอร์ (Announcement Bar)
+   📌 [ใช้งาน: หน้าแรก index.html (ส่วนแบนเนอร์บนสุด)]
+   ========================================== */
+.announcement-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+    font-size: 18px;
+    backdrop-filter: blur(4px);
+}
+
+.announcement-bar marquee {
+    cursor: pointer;
+}
+
+.announcement-bar .badge {
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.marquee-logo {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+
+/* ==========================================
+   5. สไลด์โลโก้แบรนด์พาร์ทเนอร์แบบวิ่ง (Brand Logo Marquee)
+   📌 [ใช้งาน: หน้าแรก index.html (ส่วนแสดงโลโก้แบรนด์พาร์ทเนอร์)]
+   ========================================== */
+.logo-marquee-container {
+    width: 100%;
+    overflow: hidden;
+    background-color: #ffffff;
+    border-top: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+    position: relative;
+}
+
+.logo-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-slide 20s linear infinite;
+}
+
+.logo-marquee-container:hover .logo-marquee-track {
+    animation-play-state: paused;
+}
+
+.logo-brand {
+    padding: 0 35px;
+    display: flex;
+    align-items: center;
+}
+
+.logo-brand img {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.logo-brand img:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+
+@keyframes marquee-slide {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* ขนาดโลโก้เฉพาะแบรนด์ 📌 [ใช้งาน: หน้าแรก index.html] */
+.logo-epson {
+    height: 30px;
+}
+.logo-brother {
+    height: 42.5px;
+    justify-self: center;
+}
+.logo-canon {
+    height: 42.5px;
+}
+
+/* แบนเนอร์เฉพาะรุ่น M440dn 📌 [ใช้งาน: หน้าแรก index.html / หน้าโปรโมชัน] */
+.card-banner-imgm440dn {
+    height: 500px;
+    width: 100%;
+    object-fit: contain;
+    padding: 15px;
+}
+
+
+/* ==========================================
+   6. แถบเมนูนำทางและดรอปดาวน์ (Navbar & Dropdown)
+   📌 [ใช้งาน: ทุกหน้าที่มีการดึง navbar.html มาใส่]
+   ========================================== */
+.navbar-nav .nav-link {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    font-weight: 500;
+}
+
+@media (min-width: 992px) {
+    .navbar-nav .nav-item.dropdown:hover .dropdown-menu {
+        display: block;
+        margin-top: 0;
+        animation: fadeIn 0.2s ease-in-out;
+    }
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(8px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+
+/* ==========================================
+   7. การ์ดสินค้าและอนิเมชัน (Product Cards & Animations)
+   📌 [ใช้งาน: หน้าสินค้า products.html / หน้าแรก index.html (ส่วนแสดงสินค้าแนะนำ)]
+   ========================================== */
+.custom-product-img {
+    height: 220px;
+    object-fit: contain;
+}
+
+/* เอฟเฟกต์ยกตัวการ์ดขึ้นเมื่อวางเมาส์ */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* อนิเมชันการ์ดโหลดเข้าหน้าเว็บ 📌 [ใช้งาน: หน้าที่มีรายการการ์ดสินค้า] */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-card {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+}
+
+.col-12:nth-child(1) .fade-in-card {
+    animation-delay: 0.2s;
+}
+.col-12:nth-child(2) .fade-in-card {
+    animation-delay: 0.4s;
+}
+.col-12:nth-child(3) .fade-in-card {
+    animation-delay: 0.6s;
+}
+
+/* อนิเมชันเลื่อนหน้าจอแล้วแสดงการ์ด (Scroll Trigger) 📌 [ใช้งาน: หน้าแรก index.html / products.html] */
+.product-card-scroll {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s ease-out;
+}
+
+.product-card-scroll.show {
+    opacity: 1;
+    transform: translateY(0);
+}
