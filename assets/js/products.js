@@ -1,35 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
     fetch('api/get_product.php')
-        // แก้จาก Response เป็น response (ตัวพิมพ์เล็ก)
         .then(response => response.json()) 
         .then(products => {
             const container = document.getElementById('product-container');
             container.innerHTML = '';
 
             products.forEach(product => {
-                const formattedPrice = new Intl.NumberFormat('th-TH', {
-                    style: 'currency',
-                    currency: 'THB'           
-                }).format(product.price);
+                // แก้ไขบรรทัดนี้: แปลงเป็นตัวเลขใส่ลูกน้ำ แล้วต่อด้วยคำว่า "บาท"
+                const formattedPrice = `${Number(product.price || 0).toLocaleString('th-TH')} บาท`;
 
-                // --- ส่วนจัดการรูปภาพที่เพิ่มเข้ามา ---
                 let imageSrc = product.image || '';
-
-                // ถ้าใน DB มีแค่ชื่อไฟล์ (เช่น MA4000X.png) ให้เติม Path โฟลเดอร์ให้อัตโนมัติ
                 if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('assets/')) {
                     imageSrc = `assets/images/products/${imageSrc}`;
                 }
-
-                // ถ้าไม่มีข้อมูลรูป หรือรูปหาไม่พบ ให้ใช้รูปสำรอง (Fallback)
                 if (!imageSrc) {
                     imageSrc = 'assets/images/no-image.jpg';
                 }
-                // ----------------------------------
 
                 const cardHTML = `
                     <div class="col-12 col-md-6 col-lg-4">
                         <div class="card h-100 shadow-sm border-0">
-                            <!-- เพิ่ม onerror ดักจับถ้ารูปในเครื่องพัง ให้ดึงรูปสำรองมาแสดงแทน -->
                             <img src="${imageSrc}" 
                                  onerror="this.onerror=null; this.src='https://via.placeholder.com/300x220?text=No+Image';" 
                                  class="card-img-top p-3 img-fluid" 

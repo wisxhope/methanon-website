@@ -1,0 +1,13 @@
+<IfModule mod_headers.c>
+    # บังคับไม่ให้แคชไฟล์ HTML และ JSON
+    <FilesMatch "\.(html|htm|json)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires 0
+    </FilesMatch>
+
+    # ไฟล์ CSS/JS/Images ให้แคชได้เพื่อความเร็ว (แต่ถ้าเราเปลี่ยน ?v= มันจะดาวน์โหลดใหม่เอง)
+    <FilesMatch "\.(css|js|jpg|jpeg|png|gif|svg|ico)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+</IfModule>

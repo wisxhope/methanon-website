@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลงานและบริการของเรา</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .portfolio-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            border: none;
+            overflow: hidden;
+        }
+        .portfolio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+        }
+        .portfolio-img {
+            height: 220px;
+            object-fit: cover;
+            width: 100%;
+        }
+        .category-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.75rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            background-color: rgba(0, 0, 0, 0.65);
+            color: #fff;
+        }
+        .detail-img-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease, border-color 0.2s ease;
+        }
+        .detail-img-thumb:hover, .detail-img-thumb.active {
+            opacity: 1;
+            border: 2px solid #0d6efd !important;
+        }
+        .main-detail-img {
+            max-height: 400px;
+            object-fit: contain;
+            width: 100%;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div id="navbar-placeholder"></div>
+
+<!-- Header Section -->
+<div class="bg-white border-bottom py-5 mb-4">
+    <div class="container text-center">
+        <h1 class="fw-bold">ผลงานและบริการของเรา</h1>
+        <p class="text-muted">รวมผลงานการทำงานที่ผ่านมาของเรา</p>
+        
+        <!-- ปุ่มกรองหมวดหมู่ (Category Filter) -->
+        <div class="d-flex justify-content-center gap-2 flex-wrap mt-4" id="categoryFilter">
+            <button class="btn btn-primary rounded-pill px-3 active" onclick="filterCategory('all', this)">ทั้งหมด</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Section -->
+<div class="container pb-5">
+    <div class="row g-4" id="portfolioGrid">
+        <div class="col-12 text-center py-5 text-muted" id="loadingState">
+            <div class="spinner-border text-primary mb-2" role="status"></div>
+            <p>กำลังโหลดข้อมูลผลงาน...</p>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL แสดงรายละเอียดผลงานและรูปภาพแบบขยาย -->
+<!-- ========================================== -->
+<div class="modal fade" id="portfolioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <span class="badge bg-primary mb-1" id="modalCategory">-</span>
+                    <h4 class="modal-title fw-bold" id="modalTitle">ชื่อผลงาน</h4>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- รูปภาพใหญ่ -->
+                <div class="mb-3 text-center">
+                    <img id="modalMainImg" src="" class="main-detail-img border">
+                </div>
+                
+                <!-- แถบเลือกรูปภาพย่อย -->
+                <div class="d-flex gap-2 overflow-auto pb-2 mb-3" id="modalGallery">
+                    <!-- จะถูกเติมด้วย JS -->
+                </div>
+
+                <!-- รายละเอียด -->
+                <h6 class="fw-bold mb-2">รายละเอียดผลงาน:</h6>
+                <p class="text-secondary" id="modalDescription" style="white-space: pre-line;">-</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    // เพิ่ม ?v= และ cache: 'no-store' เพื่อป้องกันแคช
+    fetch('navbar.html?v=' + new Date().getTime(), { cache: 'no-store' })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+});
+let allServices = [];
+const THUMB_SVG = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTllY2VmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZpbGw9IiM2Yzc1N2QiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEwIj5ObyBJbWc8L3RleHQ+PC9zdmc+";
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetchServices();
+});
+
+// ดึงข้อมูลผลงานจาก API
+async function fetchServices() {
+    try {
+        // ปรับ Path ของ get_services.php ให้ตรงกับโครงสร้างไดเรกทอรีของคุณ
+        const res = await fetch('admin/api/get_services.php?action=get');
+        const result = await res.json();
+
+        if (result.success && Array.isArray(result.data)) {
+            allServices = result.data;
+            renderCategories(allServices);
+            renderPortfolio(allServices);
+        } else {
+            showError('ไม่สามารถดึงข้อมูลผลงานได้');
+        }
+    } catch (err) {
+        console.error(err);
+        showError('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+    }
+}
+
+// ฟังก์ชัน Escape HTML ป้องกัน XSS
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// แสดงปุ่มหมวดหมู่แบบอัตโนมัติตามข้อมูลที่มีใน Database
+function renderCategories(services) {
+    const categories = ['all', ...new Set(services.map(s => s.category).filter(c => c && c.trim() !== ''))];
+    const filterContainer = document.getElementById('categoryFilter');
+    
+    filterContainer.innerHTML = categories.map(cat => {
+        const isAll = cat === 'all';
+        const label = isAll ? 'ทั้งหมด' : escapeHtml(cat);
+        return `<button class="btn btn-outline-primary rounded-pill px-3 ${isAll ? 'active' : ''}" onclick="filterCategory('${escapeHtml(cat)}', this)">${label}</button>`;
+    }).join('');
+}
+
+// กรองข้อมูลตามหมวดหมู่
+function filterCategory(category, btn) {
+    // เปลี่ยนสถานะปุ่ม Active
+    document.querySelectorAll('#categoryFilter .btn').forEach(b => b.classList.remove('active', 'btn-primary'));
+    document.querySelectorAll('#categoryFilter .btn').forEach(b => b.classList.add('btn-outline-primary'));
+    btn.classList.remove('btn-outline-primary');
+    btn.classList.add('active', 'btn-primary');
+
+    if (category === 'all') {
+        renderPortfolio(allServices);
+    } else {
+        const filtered = allServices.filter(s => s.category === category);
+        renderPortfolio(filtered);
+    }
+}
+
+// แสดงรายการ การ์ดผลงาน
+function renderPortfolio(services) {
+    const grid = document.getElementById('portfolioGrid');
+    
+    if (services.length === 0) {
+        grid.innerHTML = `<div class="col-12 text-center py-5 text-muted">ยังไม่มีรายการผลงานในหมวดหมู่นี้</div>`;
+        return;
+    }
+
+    grid.innerHTML = services.map(s => {
+        const coverPath = s.cover_image || s.image_path;
+        const coverUrl = coverPath ? `${coverPath}` : THUMB_SVG;
+
+        return `
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card portfolio-card h-100 shadow-sm" onclick="openPortfolioModal(${s.id})">
+                    <div class="position-relative">
+                        <img src="${escapeHtml(coverUrl)}" class="portfolio-img card-img-top" onerror="this.onerror=null; this.src='${THUMB_SVG}';">
+                        ${s.category ? `<span class="category-badge">${escapeHtml(s.category)}</span>` : ''}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold text-dark text-truncate">${escapeHtml(s.title)}</h5>
+                        <p class="card-text text-muted small line-clamp-2">${escapeHtml(s.description) || 'ไม่มีรายละเอียดเพิ่มเติม'}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// เปิด Modal แสดงรูปภาพขยายและแกลเลอรี
+function openPortfolioModal(id) {
+    const item = allServices.find(s => s.id == id);
+    if (!item) return;
+
+    document.getElementById('modalTitle').textContent = item.title || '';
+    document.getElementById('modalCategory').textContent = item.category || 'ทั่วไป';
+    document.getElementById('modalDescription').textContent = item.description || 'ไม่มีรายละเอียดเพิ่มเติม';
+
+    // รวมรูปภาพหลักและรูปภาพย่อยทั้งหมดเข้าไว้ในแกลเลอรีเดียวกัน
+    const images = [];
+    const coverPath = item.cover_image || item.image_path;
+    if (coverPath) images.push(coverPath);
+    
+    if (Array.isArray(item.detail_images)) {
+        item.detail_images.forEach(img => {
+            if (img.image_path && !images.includes(img.image_path)) {
+                images.push(img.image_path);
+            }
+        });
+    }
+
+    const mainImg = document.getElementById('modalMainImg');
+    const galleryContainer = document.getElementById('modalGallery');
+
+    if (images.length > 0) {
+        mainImg.src = images[0];
+        mainImg.style.display = 'block';
+
+        // สร้างการ์ดพรีวิวรูปเล็กๆ ด้านล่าง
+        galleryContainer.innerHTML = images.map((imgUrl, index) => `
+            <img src="${escapeHtml(imgUrl)}" 
+                 class="detail-img-thumb border ${index === 0 ? 'active' : ''}" 
+                 onclick="changeMainModalImage('${escapeHtml(imgUrl)}', this)"
+                 onerror="this.onerror=null; this.src='${THUMB_SVG}';">
+        `).join('');
+    } else {
+        mainImg.src = THUMB_SVG;
+        galleryContainer.innerHTML = '';
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('portfolioModal'));
+    modal.show();
+}
+
+// เปลี่ยนภาพใหญ่เมื่อกดคลิกที่รูปย่อยใน Modal
+function changeMainModalImage(imgUrl, thumbElement) {
+    document.getElementById('modalMainImg').src = imgUrl;
+    document.querySelectorAll('.detail-img-thumb').forEach(el => el.classList.remove('active'));
+    thumbElement.classList.add('active');
+}
+
+function showError(msg) {
+    document.getElementById('portfolioGrid').innerHTML = `
+        <div class="col-12 text-center py-5 text-danger">
+            <p>${msg}</p>
+        </div>
+    `;
+}
+</script>
+</body>
+</html>

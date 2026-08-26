@@ -351,7 +351,7 @@
                 imageSrc = `assets/images/products/${imageSrc}`;
             }
 
-            const formattedPrice = new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(product.price || 0);
+           const formattedPrice = `${Number(product.price || 0).toLocaleString('th-TH')} บาท`;
 
             document.getElementById('modalTitle').innerText = product.title;
             document.getElementById('modalCategory').innerText = product.category || 'หมวดหมู่หลัก';
