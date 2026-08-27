@@ -1,13 +1,22 @@
 <IfModule mod_headers.c>
-    # บังคับไม่ให้แคชไฟล์ HTML และ JSON
-    <FilesMatch "\.(html|htm|json)$">
-        Header set Cache-Control "no-cache, no-store, must-revalidate"
-        Header set Pragma "no-cache"
-        Header set Expires 0
+    # หน้าเว็บและ API: ไม่เก็บสำเนาเก่าไว้ เพื่อให้ deployment ใหม่แสดงผลทันที
+    <FilesMatch "\.(html?|php|json)$">
+        Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header always set Pragma "no-cache"
+        Header always set Expires "0"
     </FilesMatch>
 
-    # ไฟล์ CSS/JS/Images ให้แคชได้เพื่อความเร็ว (แต่ถ้าเราเปลี่ยน ?v= มันจะดาวน์โหลดใหม่เอง)
-    <FilesMatch "\.(css|js|jpg|jpeg|png|gif|svg|ico)$">
-        Header set Cache-Control "max-age=2592000, public"
+    # โค้ด frontend: อนุญาตให้ browser เก็บได้ แต่ต้องตรวจสอบกับ server ทุกครั้ง
+    # server จะตอบ 304 เมื่อไฟล์ไม่เปลี่ยน จึงยังเร็วโดยไม่เสี่ยงใช้ CSS/JS เวอร์ชันเก่า
+    <FilesMatch "\.(css|js)$">
+        Header always set Cache-Control "no-cache, must-revalidate, max-age=0"
+    </FilesMatch>
+
+    # รูป/เอกสารที่อาจถูกอัปโหลดทับชื่อเดิม: ตรวจสอบเวอร์ชันใหม่ทุกครั้งเช่นกัน
+    <FilesMatch "\.(avif|jpe?g|png|gif|webp|svg|ico|pdf)$">
+        Header always set Cache-Control "no-cache, must-revalidate, max-age=0"
     </FilesMatch>
 </IfModule>
+
+# ใช้ ETag จากเวลาแก้ไขและขนาดไฟล์ เพื่อให้การตรวจสอบ cache ตอบ 304 ได้อย่างมีประสิทธิภาพ
+FileETag MTime Size
